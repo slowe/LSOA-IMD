@@ -91,75 +91,78 @@
 				ls = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
 				for(var i = 0; i < ls.length; i++) LSOAs.push({'repr':ls[i]});
 				drawLSOAs();
+				loaded();
 			}
 		});
 
-		S(document).ajax("LSOA-ward.csv",{
-			'dataType':'csv',
-			'success':function(d){
-				ws = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
-				for(var i = 0; i < ws.length; i++) LSOAs[i].ward = ws[i];
-			}
-		});
-
-		S(document).ajax("LSOA-LA.csv",{
-			'dataType':'csv',
-			'success':function(d){
-				ws = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
-				for(var i = 0; i < ws.length; i++) LSOAs[i].LA = ws[i];
-				var l = S('.l');
-				for(var i = 0; i < l.length; i++){
-					S(l[i]).addClass(LSOAs[i].LA);
+		function loaded(){
+			S(document).ajax("LSOA-ward.csv",{
+				'dataType':'csv',
+				'success':function(d){
+					ws = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
+					for(var i = 0; i < ws.length; i++) LSOAs[i].ward = ws[i];
 				}
-			}
-		});
+			});
 
-		S(document).ajax("wards.csv",{
-			'dataType':'csv',
-			'success':function(d){
-				lines = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
-				for(var i = 0; i < lines.length; i++){
-					(cols) = lines[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))/);
-					if(cols[0] && cols[1]){
-						wards[cols[0]] = cols[1].replace(/(^\"|\"$)/g,"");
+			S(document).ajax("LSOA-LA.csv",{
+				'dataType':'csv',
+				'success':function(d){
+					ws = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
+					for(var i = 0; i < ws.length; i++) LSOAs[i].LA = ws[i];
+					var l = S('.l');
+					for(var i = 0; i < l.length; i++){
+						S(l[i]).addClass(LSOAs[i].LA);
 					}
 				}
-			}
-		});
+			});
 
-		S(document).ajax("LA.csv",{
-			'dataType':'csv',
-			'success':function(d){
-				lines = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
-				var str = '<option value="">Select a Local Authority</option>';
-				for(var i = 0; i < lines.length; i++){
-					(cols) = lines[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))/);
-					if(cols[0] && cols[1]){
-						LAs[cols[0]] = cols[1].replace(/(^\"|\"$)/g,"");
-						str += '<option value="'+cols[0]+'">'+LAs[cols[0]]+'</option>';
+			S(document).ajax("wards.csv",{
+				'dataType':'csv',
+				'success':function(d){
+					lines = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
+					for(var i = 0; i < lines.length; i++){
+						(cols) = lines[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))/);
+						if(cols[0] && cols[1]){
+							wards[cols[0]] = cols[1].replace(/(^\"|\"$)/g,"");
+						}
 					}
 				}
-				S('#LA').html(str);
-				S('#LA').on('change',function(e){
-					if(e.currentTarget.value){
-						for(var i = 0; i < LSOAs.length; i++){
-							if(LSOAs[i].LA == e.currentTarget.value){
+			});
+
+			S(document).ajax("LA.csv",{
+				'dataType':'csv',
+				'success':function(d){
+					lines = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
+					var str = '<option value="">Select a Local Authority</option>';
+					for(var i = 0; i < lines.length; i++){
+						(cols) = lines[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))/);
+						if(cols[0] && cols[1]){
+							LAs[cols[0]] = cols[1].replace(/(^\"|\"$)/g,"");
+							str += '<option value="'+cols[0]+'">'+LAs[cols[0]]+'</option>';
+						}
+					}
+					S('#LA').html(str);
+					S('#LA').on('change',function(e){
+						if(e.currentTarget.value){
+							for(var i = 0; i < LSOAs.length; i++){
+								if(LSOAs[i].LA == e.currentTarget.value){
+									LSOAs[i].el.removeClass('deactivate')
+									LSOAs[i].active = true;
+								}else{
+									LSOAs[i].el.addClass('deactivate');
+									LSOAs[i].active = false;
+								}
+							}
+						}else{
+							for(var i = 0; i < LSOAs.length; i++){
 								LSOAs[i].el.removeClass('deactivate')
 								LSOAs[i].active = true;
-							}else{
-								LSOAs[i].el.addClass('deactivate');
-								LSOAs[i].active = false;
 							}
 						}
-					}else{
-						for(var i = 0; i < LSOAs.length; i++){
-							LSOAs[i].el.removeClass('deactivate')
-							LSOAs[i].active = true;
-						}
-					}
-				});
-			}
-		});
+					});
+				}
+			});
+		}
 		w = document.getElementById('output').offsetWidth;
 
 	});

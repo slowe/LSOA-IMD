@@ -5,24 +5,23 @@ Open Data Manchester [created a dataset](https://medium.com/@opendatamcr/depriva
 
 ## Creating cut-down files
 
-The main data file is 5.6 MB in size. That means a pretty big download. Thankfully, much of the data in the file is unnecessary for the visualisation or duplicated so it can be reduced. First we create a list of Local Authorities with their IDs. The perl script `sort.pl` parses and manipulates simple CSV files. We just want columns 5 and 6. We will sort them alphabetically by Local Authority name and remove the duplicate entries:
+The main data file is 5.6 MB in size. That means a pretty big download. Thankfully, much of the data in the file is unnecessary for the visualisation or duplicated so it can be reduced. The perl script `sort.pl` parses and manipulates simple CSV files and we use it to chop up the original file. 
 
-> perl sort.pl -r 1 -s 6 -cols 5,6 DEPVSREP160418.csv > LA.csv
-
-Now we create a list of ward names with ward IDs. For that we take columns 3 and 4, sort by column 4, and remove the duplicates:
-
-> perl sort.pl -r 1 -s 4 -cols 3,4 DEPVSREP160418.csv > wards.csv
-
-To speed up loading we create three separate files with LSOAs sorted by Indices of Multiple Deprivation (IMD15). We sort by IMD15 because this is the order in the visualisation. That means line number corresponds to IMD15 order and we can lose that column. We'll create one file which just gives the overall representation for each (ordered) LSOA.
+For the bare minimum visualisation to show we only really need the overall representation for each LSOA ordered by IMD15. So we sort the CSV file by column 8 (IMD15) and output column 12 (overall representation) and save this in `LSOA-repr.csv`:
 
 > perl sort.pl -sort 8 -cols 12 DEPVSREP160418.csv > LSOA-repr.csv
 
-Next we'll create a one-column file just containing the Local Authority ID for each (ordered) LSOA:
+We can now render the visual but we want to be able to find out which ward and local authority an LSOA belongs to. So we create two more single-column files containing the ward ID and the local authority ID:
 
 > perl sort.pl -sort 8 -cols 5 DEPVSREP160418.csv > LSOA-LA.csv
-
-Finally we create a one-column file just containing the ward ID for each (ordered) LSOA:
-
 > perl sort.pl -sort 8 -cols 3 DEPVSREP160418.csv > LSOA-ward.csv
 
-We now have five files with different bits of the data. We've reduced it to ~20% of what it was. For the basic visualisation to show we just need the file `LSOA-repr.csv`. We can asynchronously load in the other files to add information such as the ward/LA names. 
+These are in the same order as the representation file so once we load them we combine them back. Now we have IDs but they aren't exactly human-friendly. We want lookup tables to go from LA/ward ID to names. For local authorities we just want columns 5 and 6, sorted alphabetically by name and with the duplicate entries removed:
+
+> perl sort.pl -r 1 -s 6 -cols 5,6 DEPVSREP160418.csv > LA.csv
+
+Finally we create a list of ward names with ward IDs. For that we take columns 3 and 4, sort by column 4, and remove the duplicates:
+
+> perl sort.pl -r 1 -s 4 -cols 3,4 DEPVSREP160418.csv > wards.csv
+
+These final five files each have different bits of the data. We've reduced the total to ~20% of what it was and can get the basic visual going with just `LSOA-repr.csv` (74kB). We can asynchronously load in the other files to add information such as the ward/LA names. 

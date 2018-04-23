@@ -80,6 +80,8 @@
 	var LSOAs = new Array();
 	var wards = {};
 	var LAs = {};
+	var w = 100;
+
 	S(document).ready(function(){
 
 		S(document).ajax("LSOA-repr.csv",{
@@ -157,39 +159,43 @@
 				});
 			}
 		});
+		w = document.getElementById('output').offsetWidth;
 
 	});
 
+	function showInfo(i){
+		el = LSOAs[i].el;
+		if(LSOAs[i].active){
+			var p = {
+				top: el[0].offsetTop,
+				left: el[0].offsetLeft
+			}
+			// Add the currently selected LSOA information to the balloon
+			if(p.left > w/2) S('.balloon').addClass('right');
+			else S('.balloon').removeClass('right');
+			S('.balloon').html((LAs[LSOAs[i].LA] ? LAs[LSOAs[i].LA] : LSOAs[i].LA)+': '+(wards[LSOAs[i].ward] ? wards[LSOAs[i].ward]:LSOAs[i].ward)+'<br />'+party[LSOAs[i].repr]).css({'left':p.left+'px','top':p.top+'px','display':'inline-block'});
+		}else{
+			S('.balloon').css({'display':'none'});
+		}
+		return;
+	}
+	
 	function drawLSOAs(){
 		var html = "";
 		for(var i = 0; i < LSOAs.length; i++) html += '<div data="'+i+'" class="l r-'+LSOAs[i].repr+'" title="'+party[LSOAs[i].repr]+'"></div>';
 		S('#LSOAs').html(html);
 
-		var w = document.getElementById('output').offsetWidth;
+		//var w = document.getElementById('output').offsetWidth;
 		var ls = S('.l');
 		for(var i = 0; i < ls.length; i++){
 			LSOAs[i].el = S(ls[i]);
 			LSOAs[i].active = true;	// default
 			LSOAs[i].el.on('mouseover',{i:i},function(e){
-				i = e.data.i;
-				el = LSOAs[i].el;
-				if(LSOAs[i].active){
-					//var rect = e.currentTarget.getBoundingClientRect();
-					var p = {
-						top: e.currentTarget.offsetTop,
-						left: e.currentTarget.offsetLeft// + document.body.scrollLeft
-					}
-					// Add the currently selected LSOA information to the balloon
-					if(p.left > w/2) S('.balloon').addClass('right');
-					else S('.balloon').removeClass('right');
-					S('.balloon').html((LAs[LSOAs[i].LA] ? LAs[LSOAs[i].LA] : LSOAs[i].LA)+': '+(wards[LSOAs[i].ward] ? wards[LSOAs[i].ward]:LSOAs[i].ward)+'<br />'+party[LSOAs[i].repr]).css({'left':p.left+'px','top':p.top+'px','display':'inline-block'});
-				}else{
-					S('.balloon').css({'display':'none'});
-				}
+				showInfo(e.data.i);
+			}).on('click',{i:i},function(e){
+				showInfo(e.data.i);
 			});
-			
 		}
-
 	}
 	</script>
 </head>

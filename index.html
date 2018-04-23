@@ -139,10 +139,20 @@
 				S('#LA').html(str);
 				S('#LA').on('change',function(e){
 					if(e.currentTarget.value){
-						S('.l').addClass('deactivate');
-						S('.'+e.currentTarget.value).removeClass('deactivate');
+						for(var i = 0; i < LSOAs.length; i++){
+							if(LSOAs[i].LA == e.currentTarget.value){
+								LSOAs[i].el.removeClass('deactivate')
+								LSOAs[i].active = true;
+							}else{
+								LSOAs[i].el.addClass('deactivate');
+								LSOAs[i].active = false;
+							}
+						}
 					}else{
-						S('.l').removeClass('deactivate');
+						for(var i = 0; i < LSOAs.length; i++){
+							LSOAs[i].el.removeClass('deactivate')
+							LSOAs[i].active = true;
+						}
 					}
 				});
 			}
@@ -156,25 +166,30 @@
 		S('#LSOAs').html(html);
 
 		var w = document.getElementById('output').offsetWidth;
-
-		S('.l').on('mouseover',function(e,i){
-			var el = S(e.currentTarget);
-			if(el.hasClass('deactivate')){
-				S('.balloon').css({'display':'none'});
-			}else{
-				var rect = e.currentTarget.getBoundingClientRect();
-				var p = {
-					top: e.currentTarget.offsetTop,
-					left: e.currentTarget.offsetLeft// + document.body.scrollLeft
+		var ls = S('.l');
+		for(var i = 0; i < ls.length; i++){
+			LSOAs[i].el = S(ls[i]);
+			LSOAs[i].active = true;	// default
+			LSOAs[i].el.on('mouseover',{i:i},function(e){
+				i = e.data.i;
+				el = LSOAs[i].el;
+				if(LSOAs[i].active){
+					//var rect = e.currentTarget.getBoundingClientRect();
+					var p = {
+						top: e.currentTarget.offsetTop,
+						left: e.currentTarget.offsetLeft// + document.body.scrollLeft
+					}
+					// Add the currently selected LSOA information to the balloon
+					if(p.left > w/2) S('.balloon').addClass('right');
+					else S('.balloon').removeClass('right');
+					S('.balloon').html((LAs[LSOAs[i].LA] ? LAs[LSOAs[i].LA] : LSOAs[i].LA)+': '+(wards[LSOAs[i].ward] ? wards[LSOAs[i].ward]:LSOAs[i].ward)+'<br />'+party[LSOAs[i].repr]).css({'left':p.left+'px','top':p.top+'px','display':'inline-block'});
+				}else{
+					S('.balloon').css({'display':'none'});
 				}
+			});
+			
+		}
 
-				var i = parseInt(el.attr('data'));
-				// Add the currently selected LSOA information to the balloon
-				if(p.left > w/2) S('.balloon').addClass('right');
-				else S('.balloon').removeClass('right');
-				S('.balloon').html((LAs[LSOAs[i].LA] ? LAs[LSOAs[i].LA] : LSOAs[i].LA)+': '+(wards[LSOAs[i].ward] ? wards[LSOAs[i].ward]:LSOAs[i].ward)+'<br />'+party[LSOAs[i].repr]).css({'left':p.left+'px','top':p.top+'px','display':'inline-block'});
-			}
-		});
 	}
 	</script>
 </head>

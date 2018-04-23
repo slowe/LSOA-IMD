@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Deprivation Grid of England</title>
+	<style>
+	/* Reset block */
+	html, body, div, span, applet, object, iframe,h1, h2, h3, h4, h5, h6, p, blockquote, pre,a, abbr, acronym, address, big, cite, code,del, dfn, em, img, ins, kbd, q, s, samp,small, strike, strong, sub, sup, tt, var,b, u, i, center,dl, dt, dd, ol, ul, li,fieldset, form, label, legend,table, caption, tbody, tfoot, thead, tr, th, td,article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary,time, mark, audio, video {	margin: 0; padding: 0; border: 0; font-size: 100%; font: inherit; vertical-align: baseline; }
+	/* HTML5 display-role reset for older browsers */
+	article, aside, details, figcaption, figure, 
+	footer, header, hgroup, menu, nav, section { display: block; }
+	ol, ul { list-style: none; }
+	blockquote, q { quotes: none; }
+	blockquote:before, blockquote:after, q:before, q:after { content: ''; content: none; }
+	table { border-collapse: collapse; border-spacing: 0; }
+	a { color: black; }
+	sup { font-size: 0.8em; position: relative; top: -0.5em;}
+	sub { font-size: 0.8em; position: relative; bottom: -0.25em; }
+
+
+	body { font-family: "Helvetica Neue", sans-serif; padding: 2em; }
+	h1 { font-size: 1.5em; font-weight: 500; margin-bottom: 0.25em; }
+	p { margin-bottom: 0.5em; }
+	em { font-style: italic; }
+	#LSOA { font-size: 1em; line-height: 1.25em; margin-bottom: 0.5em; }
+	#LSOAs { line-height: 0; }
+	.l { width: 8px; height: 8px; display: inline-block; margin: 0 1px 1px 0; background-color: #ddd; position: relative; cursor: pointer; }
+	.r-C { background-color: #2254F4; }
+	.r-L { background-color: red; }
+	.r-LD { background-color: #F9BC26; }
+	.r-O { background-color: pink; }
+	.r-G { background-color: #0DBC37; }
+	.r-UKIP { background-color: #722EA5; }
+	.r-V { background-color: black; }
+	.deactivate { opacity: 0.1; }
+	select { margin-bottom: 0.5em; }
+	#output { position: relative; }
+	.balloon {
+		display: none;
+		position: absolute;
+		background-color: black;
+		color: white;
+		padding: 0.25em 0.5em;
+		left: 50%;
+		top: 0;
+		transform: translate3d(0%,-100%, 0);
+		white-space: nowrap;
+		text-align: left;
+		z-index: 100;
+		line-height: 1.25em;
+		box-shadow: 1px 1px 10px rgba(0,0,0,0.2);
+		margin-left: 4px;
+		margin-top: -4px;
+	}
+	.balloon::after {
+		content: '';
+		position: absolute;
+		bottom: auto;
+		width: 0;
+		height: 0;
+		border: 0.5em solid transparent;
+		left: 0;
+		border-color: transparent;
+		border-left-color: black;
+		bottom: -0.5em;
+	}
+	.balloon.right {
+		transform: translate3d(-100%,-100%, 0);
+		margin-right: auto;
+	}
+	.balloon.right::after {
+		border-left-color: transparent;
+		border-right-color: black;
+		left: auto;
+		right: 0;
+	}
+	</style>
+	<script src="stuquery.js"></script>
+	<script>
+	var party = {'C':'Conservative','L':'Labour','LD':'Liberal Democrats','UKIP':'UKIP','G':'Green','O':'Other parties','V':'V','NOR':'NOR'};
+	var LSOAs = new Array();
+	var wards = {};
+	var LAs = {};
+	S(document).ready(function(){
+
+		S(document).ajax("LSOA-repr.csv",{
+			'dataType':'csv',
+			'success':function(d){
+				ls = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
+				for(var i = 0; i < ls.length; i++) LSOAs.push({'repr':ls[i]});
+				drawLSOAs();
+			}
+		});
+
+		S(document).ajax("LSOA-ward.csv",{
+			'dataType':'csv',
+			'success':function(d){
+				ws = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
+				for(var i = 0; i < ws.length; i++) LSOAs[i].ward = ws[i];
+			}
+		});
+
+		S(document).ajax("LSOA-LA.csv",{
+			'dataType':'csv',
+			'success':function(d){
+				ws = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
+				for(var i = 0; i < ws.length; i++) LSOAs[i].LA = ws[i];
+				var l = S('.l');
+				for(var i = 0; i < l.length; i++){
+					S(l[i]).addClass(LSOAs[i].LA);
+				}
+			}
+		});
+
+		S(document).ajax("wards.csv",{
+			'dataType':'csv',
+			'success':function(d){
+				lines = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
+				for(var i = 0; i < lines.length; i++){
+					(cols) = lines[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))/);
+					if(cols[0] && cols[1]){
+						wards[cols[0]] = cols[1].replace(/(^\"|\"$)/g,"");
+					}
+				}
+			}
+		});
+
+		S(document).ajax("LA.csv",{
+			'dataType':'csv',
+			'success':function(d){
+				lines = d.replace(/^[^\n]+\n/,"").split(/[\n\r]/);
+				var str = '<option value="">Select a Local Authority</option>';
+				for(var i = 0; i < lines.length; i++){
+					(cols) = lines[i].split(/,(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))/);
+					if(cols[0] && cols[1]){
+						LAs[cols[0]] = cols[1].replace(/(^\"|\"$)/g,"");
+						str += '<option value="'+cols[0]+'">'+LAs[cols[0]]+'</option>';
+					}
+				}
+				S('#LA').html(str);
+				S('#LA').on('change',function(e){
+					if(e.currentTarget.value){
+						S('.l').addClass('deactivate');
+						S('.'+e.currentTarget.value).removeClass('deactivate');
+					}else{
+						S('.l').removeClass('deactivate');
+					}
+				});
+			}
+		});
+
+	});
+
+	function drawLSOAs(){
+		var html = "";
+		for(var i = 0; i < LSOAs.length; i++) html += '<div data="'+i+'" class="l r-'+LSOAs[i].repr+'" title="'+party[LSOAs[i].repr]+'"></div>';
+		S('#LSOAs').html(html);
+
+		var w = document.getElementById('output').offsetWidth;
+
+		S('.l').on('mouseover',function(e,i){
+			var rect = e.currentTarget.getBoundingClientRect();
+			var p = {
+				top: e.currentTarget.offsetTop,
+				left: e.currentTarget.offsetLeft// + document.body.scrollLeft
+			}
+
+			var el = S(e.currentTarget);
+			var i = parseInt(el.attr('data'));
+			// Add the currently selected LSOA information to the balloon
+			if(p.left > w/2) S('.balloon').addClass('right');
+			else S('.balloon').removeClass('right');
+			S('.balloon').html((LAs[LSOAs[i].LA] ? LAs[LSOAs[i].LA] : LSOAs[i].LA)+': '+(wards[LSOAs[i].ward] ? wards[LSOAs[i].ward]:LSOAs[i].ward)+'<br />'+party[LSOAs[i].repr]).css({'left':p.left+'px','top':p.top+'px','display':'inline-block'});
+		});
+	}
+	</script>
+</head>
+<body>
+
+	<h1>Deprivation Grid of England (alpha)</h1>
+	<p>Adapted from <a href="http://propolis.io/dataviz/depvspolitic/depvspolitic_d3_2.htm">work by Jamie Whyte</a>.</p>
+	<p>Grid of all 32,844 LSOAs in England sorted by deprivation, with most deprived at top-left, least deprived bottom-right, and coloured by political representation at ward-level.</p>
+	<select id="LA"></select>
+	<div id="output">
+		<div id="LSOAs"></div>
+		<div class="balloon"></div>
+	</div>
+
+</body>
+</html>

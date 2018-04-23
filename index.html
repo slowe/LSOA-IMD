@@ -31,7 +31,7 @@
 	.r-G { background-color: #0DBC37; }
 	.r-UKIP { background-color: #722EA5; }
 	.r-V { background-color: black; }
-	.deactivate { opacity: 0.1; }
+	.deactivate { opacity: 0.05; }
 	select { margin-bottom: 0.5em; }
 	#output { position: relative; }
 	.balloon {
@@ -169,7 +169,8 @@
 			// Add the currently selected LSOA information to the balloon
 			if(p.left > w/2) S('.balloon').addClass('right');
 			else S('.balloon').removeClass('right');
-			S('.balloon').html((LAs[LSOAs[i].LA] ? LAs[LSOAs[i].LA] : LSOAs[i].LA)+': '+(wards[LSOAs[i].ward] ? wards[LSOAs[i].ward]:LSOAs[i].ward)+'<br />'+party[LSOAs[i].repr]).css({'left':p.left+'px','top':p.top+'px','display':'inline-block'});
+			if(el.hasClass('deactivate')) S('.balloon').css({'display':'none'})
+			else S('.balloon').html((LAs[LSOAs[i].LA] ? LAs[LSOAs[i].LA] : LSOAs[i].LA)+': '+(wards[LSOAs[i].ward] ? wards[LSOAs[i].ward]:LSOAs[i].ward)+'<br />'+party[LSOAs[i].repr]).css({'left':p.left+'px','top':p.top+'px','display':'inline-block'});
 		});
 	}
 	</script>

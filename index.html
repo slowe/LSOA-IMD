@@ -76,7 +76,7 @@
 	</style>
 	<script src="stuquery.js"></script>
 	<script>
-	var party = {'C':'Conservative','L':'Labour','LD':'Liberal Democrats','UKIP':'UKIP','G':'Green','O':'Other parties','V':'V','NOR':'NOR'};
+	var party = {'C':'Conservative','L':'Labour','LD':'Liberal Democrats','UKIP':'UKIP','G':'Green','O':'Other parties','V':'Vacant seat','NOR':'No dominant representation'};
 	var LSOAs = new Array();
 	var wards = {};
 	var LAs = {};
@@ -182,7 +182,7 @@
 
 	<h1>Deprivation Grid of England (alpha)</h1>
 	<p>Adapted from <a href="http://propolis.io/dataviz/depvspolitic/depvspolitic_d3_2.htm">work by Jamie Whyte</a>.</p>
-	<p>Grid of all 32,844 LSOAs in England sorted by deprivation, with most deprived at top-left, least deprived bottom-right, and coloured by political representation at ward-level. <a href="https://github.com/slowe/LSOA-IMD/">View the code on Github</a>.</p>
+	<p>Grid of all 32,844 LSOAs in England sorted by deprivation, with most deprived at top-left, least deprived bottom-right, and coloured by political representation at ward-level. Read about how <a href="https://medium.com/@opendatamcr/deprivation-vs-representation-building-a-dataset-eea715a87e25">the dataset was created</a> by Open Data Manchester. View <a href="https://github.com/slowe/LSOA-IMD/">the code for this visualisation</a> on Github.</p>
 	<select id="LA"></select>
 	<div id="output">
 		<div id="LSOAs"></div>

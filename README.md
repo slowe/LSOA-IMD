@@ -9,20 +9,20 @@ The main data file is 5.6 MB in size. That means a pretty big download. Thankful
 
 For the bare minimum visualisation to show we only really need the overall representation for each LSOA ordered by IMD15. So we sort the CSV file by column 8 (IMD15) and output column 12 (overall representation) and save this in `LSOA-repr.csv`:
 
-> perl sort.pl -sort 8 -cols 12 DEPVSREP230418.csv > LSOA-repr.csv
+> perl sort.pl -sort 8 -cols 12 DEPVSREP.csv > LSOA-repr.csv
 
 We can now render the visual but we want to be able to find out which ward and local authority an LSOA belongs to. So we create two more single-column files containing the ward ID and the local authority ID:
 
-> perl sort.pl -sort 8 -cols 5 DEPVSREP230418.csv > LSOA-LA.csv
+> perl sort.pl -sort 8 -cols 5 DEPVSREP.csv > LSOA-LA.csv
 
-> perl sort.pl -sort 8 -cols 3 DEPVSREP230418.csv > LSOA-ward.csv
+> perl sort.pl -sort 8 -cols 3 DEPVSREP.csv > LSOA-ward.csv
 
 These are in the same order as the representation file so once we load them we combine them back. Now we have IDs but they aren't exactly human-friendly. We want lookup tables to go from LA/ward ID to names. For local authorities we just want columns 5 and 6, sorted alphabetically by name and with the duplicate entries removed:
 
-> perl sort.pl -r 1 -s 6 -cols 5,6 DEPVSREP230418.csv > LA.csv
+> perl sort.pl -r 1 -s 6 -cols 5,6 DEPVSREP.csv > LA.csv
 
 Finally we create a list of ward names with ward IDs. For that we take columns 3 and 4, sort by column 4, and remove the duplicates:
 
-> perl sort.pl -r 1 -s 4 -cols 3,4 DEPVSREP230418.csv > wards.csv
+> perl sort.pl -r 1 -s 4 -cols 3,4 DEPVSREP.csv > wards.csv
 
 These final five files each have different bits of the data. We've reduced the total to ~20% of what it was and can get the basic visual going with just `LSOA-repr.csv` (74kB). We can asynchronously load in the other files to add information such as the ward/LA names. 
